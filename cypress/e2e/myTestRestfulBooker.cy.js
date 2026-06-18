@@ -103,4 +103,35 @@ describe("Shady Meadows - Formulario de Contacto", () => {
       );
     });
   });
+
+  //TC-25 Verifica si el backend rechaza correctamente
+  //un mensaje que supera la longitud máxima permitida
+  it("25. Mensaje de longitud máxima", () => {
+    cy.intercept("POST", "/api/message").as("contactFail");
+
+    const mensajeLargo = "A".repeat(2001);
+
+    cy.visit("https://automationintesting.online");
+
+    cy.get('[data-testid="ContactName"]').type("Juan Pérez");
+    cy.get('[data-testid="ContactEmail"]').type("juan_perez@prueba.com");
+    cy.get('[data-testid="ContactPhone"]').type("35133221231");
+    cy.get('[data-testid="ContactSubject"]').type("Pregunta sobre reserva");
+    cy.get('[data-testid="ContactDescription"]').type(mensajeLargo);
+
+    cy.get(".d-grid > .btn").click();
+
+    cy.get(".alert > p").should(
+      "contain",
+      "Message must be between 20 and 2000 characters.",
+    );
+
+    cy.wait("@contactFail").then((interception) => {
+      expect(interception.request.body.description.length).to.equal(2001);
+      expect(interception.response.statusCode).to.equal(400);
+      expect(interception.response.body[0]).to.equal(
+        "Message must be between 20 and 2000 characters.",
+      );
+    });
+  });
 });
