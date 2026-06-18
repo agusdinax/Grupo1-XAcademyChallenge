@@ -60,7 +60,9 @@ describe("Shady Meadows - Formulario de Contacto", () => {
     cy.get('[data-testid="ContactEmail"]').type("juan_perez");
     cy.get('[data-testid="ContactPhone"]').type("35133221231");
     cy.get('[data-testid="ContactSubject"]').type("Pregunta sobre reserva");
-    cy.get('[data-testid="ContactDescription"]').type("Consulta sobre reserva");
+    cy.get('[data-testid="ContactDescription"]').type(
+      "Quería preguntarles si está confirmada la reserva que realicé el día 16/6/2026 con esta misma dirección de email.",
+    );
 
     cy.get(".d-grid > .btn").click();
     cy.get(".alert > p").should(
@@ -73,6 +75,31 @@ describe("Shady Meadows - Formulario de Contacto", () => {
       expect(interception.response.statusCode).to.equal(400);
       expect(interception.response.body[0]).to.equal(
         "must be a well-formed email address",
+      );
+    });
+  });
+
+  //TC-24 Verifica si el backend rechaza correctamente
+  //un formulario de contacto con el campo Message vacío
+  it("24. Mensaje vacío", () => {
+    cy.intercept("POST", "/api/message").as("contactFail");
+
+    cy.visit("https://automationintesting.online");
+
+    cy.get('[data-testid="ContactName"]').type("Juan Pérez");
+    cy.get('[data-testid="ContactEmail"]').type("juan_perez@prueba.com");
+    cy.get('[data-testid="ContactPhone"]').type("35133221231");
+    cy.get('[data-testid="ContactSubject"]').type("Pregunta sobre reserva");
+
+    cy.get(".d-grid > .btn").click();
+
+    cy.get(".alert > p").should("contain", "Message may not be blank");
+
+    cy.wait("@contactFail").then((interception) => {
+      expect(interception.request.body.description).to.equal("");
+      expect(interception.response.statusCode).to.equal(400);
+      expect(interception.response.body[0]).to.equal(
+        "Message may not be blank",
       );
     });
   });
