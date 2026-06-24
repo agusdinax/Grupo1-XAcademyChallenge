@@ -1,6 +1,12 @@
 describe("Shady Meadows - Formulario de Contacto", () => {
+  let contacto; //Variable que contendrá los datos de contacto del fixture
+
   beforeEach(() => {
     cy.visit("https://automationintesting.online");
+
+    cy.fixture("contacto").then((datos) => {
+      contacto = datos;
+    });
   });
 
   //TC-21 Verifica envio correcto, tanto en el frontend
@@ -8,9 +14,7 @@ describe("Shady Meadows - Formulario de Contacto", () => {
   it("21. Envio correcto", () => {
     cy.intercept("POST", "/api/message").as("contactSuccess");
 
-    cy.fixture("contacto").then((data) => {
-      cy.completarFormularioContacto({ ...data });
-    });
+    cy.completarFormularioContacto(contacto);
 
     cy.get(".d-grid > .btn").click();
     cy.get(".col-lg-8 > .card > .card-body > .h4").should(
@@ -28,9 +32,7 @@ describe("Shady Meadows - Formulario de Contacto", () => {
   it("22. Nombre vacío", () => {
     cy.intercept("POST", "/api/message").as("contactFail");
 
-    cy.fixture("contacto").then((data) => {
-      cy.completarFormularioContacto({ ...data, name: "" });
-    });
+    cy.completarFormularioContacto({ ...contacto, name: "" });
 
     cy.get(".d-grid > .btn").click();
     cy.get(".alert > p").should("contain", "Name may not be blank");
@@ -47,9 +49,7 @@ describe("Shady Meadows - Formulario de Contacto", () => {
   it("23. Email inválido", () => {
     cy.intercept("POST", "/api/message").as("contactFail");
 
-    cy.fixture("contacto").then((data) => {
-      cy.completarFormularioContacto({ ...data, email: "juan_perez" });
-    });
+    cy.completarFormularioContacto({ ...contacto, email: "juan_perez" });
 
     cy.get(".d-grid > .btn").click();
     cy.get(".alert > p").should(
@@ -71,9 +71,7 @@ describe("Shady Meadows - Formulario de Contacto", () => {
   it("24. Mensaje vacío", () => {
     cy.intercept("POST", "/api/message").as("contactFail");
 
-    cy.fixture("contacto").then((data) => {
-      cy.completarFormularioContacto({ ...data, message: "" });
-    });
+    cy.completarFormularioContacto({ ...contacto, message: "" });
 
     cy.get(".d-grid > .btn").click();
 
@@ -97,9 +95,7 @@ describe("Shady Meadows - Formulario de Contacto", () => {
 
     const mensajeLargo = "A".repeat(2001);
 
-    cy.fixture("contacto").then((data) => {
-      cy.completarFormularioContacto({ ...data, message: mensajeLargo });
-    });
+    cy.completarFormularioContacto({ ...contacto, message: mensajeLargo });
 
     cy.get(".d-grid > .btn").click();
 
@@ -125,9 +121,7 @@ describe("Shady Meadows - Formulario de Contacto", () => {
     const mensajeEspecial =
       "¡Hola! ¿Cómo estás? @#$%^&*()_+-=[]{}|;:',.<>/?~` ñ Ñ áéíóú";
 
-    cy.fixture("contacto").then((data) => {
-      cy.completarFormularioContacto({ ...data, message: mensajeEspecial });
-    });
+    cy.completarFormularioContacto({ ...contacto, message: mensajeEspecial });
 
     cy.get(".d-grid > .btn").click();
 
