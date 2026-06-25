@@ -97,3 +97,27 @@ Cypress.Commands.add('validarReservaExitosa', () => {
     .should('be.visible')
 }) 
 
+Cypress.Commands.add(
+  "completarFormularioContacto",
+  ({ name = "", email = "", phone = "", subject = "", message = "" }) => {
+    if (name) {
+      cy.get('[data-testid="ContactName"]').type(name);
+    }
+
+    if (email) {
+      cy.get('[data-testid="ContactEmail"]').type(email);
+    }
+
+    if (phone) {
+      cy.get('[data-testid="ContactPhone"]').type(phone);
+    }
+
+    if (subject) {
+      cy.get('[data-testid="ContactSubject"]').type(subject);
+    }
+
+    if (message) {
+      cy.get('[data-testid="ContactDescription"]').type(message);
+    }
+  },
+);

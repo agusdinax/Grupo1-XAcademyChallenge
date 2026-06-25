@@ -187,3 +187,258 @@ describe('Reservas - Usuario Invitado', () => {
   })
  
 })
+
+describe('3.2 Validaciones del Formulario de Reserva', () => {
+  const datosValidos = {
+    nombre: 'Juan',
+    apellido: 'Perez',
+    correo: 'juan_perez@prueba.com',
+    telefono: '35133221231',
+  }
+
+  it('CP-013 | Nombre vacío - debe mostrar error Firstname should not be blank', () => {
+    cy.abrirFormularioReserva()
+    cy.completarFormularioReserva({
+      nombre: '',
+      apellido: datosValidos.apellido,
+      correo: datosValidos.correo,
+      telefono: datosValidos.telefono,
+    })
+    cy.enviarFormularioReserva()
+    cy.deberiaMostrarError('Firstname should not be blank')
+    cy.noDeberiaConfirmarReserva()
+  })
+
+  it('CP-014 | Apellido vacío - debe mostrar error Lastname should not be blank', () => {
+    cy.abrirFormularioReserva()
+    cy.completarFormularioReserva({
+      nombre: datosValidos.nombre,
+      apellido: '',
+      correo: datosValidos.correo,
+      telefono: datosValidos.telefono,
+    })
+    cy.enviarFormularioReserva()
+    cy.deberiaMostrarError('Lastname should not be blank')
+    cy.noDeberiaConfirmarReserva()
+  })
+
+  it('CP-015 | Email vacío - debe mostrar error must not be empty', () => {
+    cy.abrirFormularioReserva()
+    cy.completarFormularioReserva({
+      nombre: datosValidos.nombre,
+      apellido: datosValidos.apellido,
+      correo: '',
+      telefono: datosValidos.telefono,
+    })
+    cy.enviarFormularioReserva()
+    cy.deberiaMostrarError('must not be empty')
+    cy.noDeberiaConfirmarReserva()
+  })
+
+  it('CP-016 | Teléfono vacío - debe mostrar error must not be empty', () => {
+    cy.abrirFormularioReserva()
+    cy.completarFormularioReserva({
+      nombre: datosValidos.nombre,
+      apellido: datosValidos.apellido,
+      correo: datosValidos.correo,
+      telefono: '',
+    })
+    cy.enviarFormularioReserva()
+    cy.deberiaMostrarError('must not be empty')
+    cy.noDeberiaConfirmarReserva()
+  })
+
+  it('CP-015b | Email mal formado - debe mostrar error must be a well-formed email address', () => {
+    cy.abrirFormularioReserva()
+    cy.completarFormularioReserva({
+      nombre: datosValidos.nombre,
+      apellido: datosValidos.apellido,
+      correo: 'juan_perezprueba.com',
+      telefono: datosValidos.telefono,
+    })
+    cy.enviarFormularioReserva()
+    cy.deberiaMostrarError('must be a well-formed email address')
+    cy.noDeberiaConfirmarReserva()
+  })
+
+  it('CP-018 | Nombre con 1 carácter - debe mostrar error size must be between 3 and 18', () => {
+    cy.abrirFormularioReserva()
+    cy.completarFormularioReserva({
+      nombre: 'J',
+      apellido: datosValidos.apellido,
+      correo: datosValidos.correo,
+      telefono: datosValidos.telefono,
+    })
+    cy.enviarFormularioReserva()
+    cy.deberiaMostrarError('size must be between 3 and 18')
+    cy.noDeberiaConfirmarReserva()
+  })
+
+  it('CP-019 | Email con longitud excesiva - debe mostrar error must be a well-formed email address', () => {
+    const correoLargo = `juan_perez${'s'.repeat(60)}@prueba.com`
+
+    cy.abrirFormularioReserva()
+    cy.completarFormularioReserva({
+      nombre: datosValidos.nombre,
+      apellido: datosValidos.apellido,
+      correo: correoLargo,
+      telefono: datosValidos.telefono,
+    })
+    cy.enviarFormularioReserva()
+    cy.deberiaMostrarError('must be a well-formed email address')
+    cy.noDeberiaConfirmarReserva()
+  })
+
+  it('CP-013-016 | Formulario vacío - deben aparecer todos los mensajes de error', () => {
+    cy.abrirFormularioReserva()
+    cy.enviarFormularioReserva()
+
+    cy.get('.alert-danger, .error, [class*="error"], [class*="alert"]')
+      .should('be.visible')
+
+    cy.get('body')
+      .should('contain.text', 'should not be blank')
+      .and('contain.text', 'must not be empty')
+
+    cy.noDeberiaConfirmarReserva()
+  })
+})
+
+describe("Shady Meadows - Formulario de Contacto", () => {
+  let contacto; //Variable que contendrá los datos de contacto del fixture
+
+  beforeEach(() => {
+    cy.visit("https://automationintesting.online");
+
+    cy.fixture("contacto").then((datos) => {
+      contacto = datos;
+    });
+  });
+
+  //TC-21 Verifica envio correcto, tanto en el frontend
+  //como en la respuesta de la API
+  it("21. Envio correcto", () => {
+    cy.intercept("POST", "/api/message").as("contactSuccess");
+
+    cy.completarFormularioContacto(contacto);
+
+    cy.get(".d-grid > .btn").click();
+    cy.get(".col-lg-8 > .card > .card-body > .h4").should(
+      "contain",
+      "Thanks for getting in touch Juan Pérez!",
+    );
+
+    cy.wait("@contactSuccess").then((interception) => {
+      expect(interception.response.statusCode).to.equal(200);
+    });
+  });
+
+  //TC-22 Verifica si tanto el frontend como el backend
+  //rechaza correctamente un formulario de contacto con el campo Name vacío
+  it("22. Nombre vacío", () => {
+    cy.intercept("POST", "/api/message").as("contactFail");
+
+    cy.completarFormularioContacto({ ...contacto, name: "" });
+
+    cy.get(".d-grid > .btn").click();
+    cy.get(".alert > p").should("contain", "Name may not be blank");
+
+    cy.wait("@contactFail").then((interception) => {
+      expect(interception.request.body.name).to.equal(""); //verifica que el campo Name esté vacío
+      expect(interception.response.statusCode).to.equal(400);
+      expect(interception.response.body[0]).to.equal("Name may not be blank");
+    });
+  });
+
+  //TC-23 Verifica si el backend rechaza correctamente
+  //un formulario de contacto con un Email inválido
+  it("23. Email inválido", () => {
+    cy.intercept("POST", "/api/message").as("contactFail");
+
+    cy.completarFormularioContacto({ ...contacto, email: "juan_perez" });
+
+    cy.get(".d-grid > .btn").click();
+    cy.get(".alert > p").should(
+      "contain",
+      "must be a well-formed email address",
+    );
+
+    cy.wait("@contactFail").then((interception) => {
+      expect(interception.request.body.email).to.equal("juan_perez");
+      expect(interception.response.statusCode).to.equal(400);
+      expect(interception.response.body[0]).to.equal(
+        "must be a well-formed email address",
+      );
+    });
+  });
+
+  //TC-24 Verifica si el backend rechaza correctamente
+  //un formulario de contacto con el campo Message vacío
+  it("24. Mensaje vacío", () => {
+    cy.intercept("POST", "/api/message").as("contactFail");
+
+    cy.completarFormularioContacto({ ...contacto, message: "" });
+
+    cy.get(".d-grid > .btn").click();
+
+    cy.get(".alert > p").should(
+      "contain",
+      "Message may not be blank",
+      "Message must be between 20 and 2000 characters.",
+    );
+
+    cy.wait("@contactFail").then((interception) => {
+      expect(interception.request.body.description).to.equal("");
+      expect(interception.response.statusCode).to.equal(400);
+      expect(interception.response.body).to.contain("Message may not be blank");
+    });
+  });
+
+  //TC-25 Verifica si el backend rechaza correctamente
+  //un mensaje que supera la longitud máxima permitida
+  it("25. Mensaje de longitud máxima", () => {
+    cy.intercept("POST", "/api/message").as("contactFail");
+
+    const mensajeLargo = "A".repeat(2001);
+
+    cy.completarFormularioContacto({ ...contacto, message: mensajeLargo });
+
+    cy.get(".d-grid > .btn").click();
+
+    cy.get(".alert > p").should(
+      "contain",
+      "Message must be between 20 and 2000 characters.",
+    );
+
+    cy.wait("@contactFail").then((interception) => {
+      expect(interception.request.body.description.length).to.equal(2001);
+      expect(interception.response.statusCode).to.equal(400);
+      expect(interception.response.body[0]).to.equal(
+        "Message must be between 20 and 2000 characters.",
+      );
+    });
+  });
+
+  //TC-26 Verifica si frontend y backend procesan
+  //correctamente caracteres especiales en Message
+  it("26. Caracteres especiales", () => {
+    cy.intercept("POST", "/api/message").as("contactSuccess");
+
+    const mensajeEspecial =
+      "¡Hola! ¿Cómo estás? @#$%^&*()_+-=[]{}|;:',.<>/?~` ñ Ñ áéíóú";
+
+    cy.completarFormularioContacto({ ...contacto, message: mensajeEspecial });
+
+    cy.get(".d-grid > .btn").click();
+
+    cy.get(".col-lg-8 > .card > .card-body > .h4").should(
+      "contain",
+      "Thanks for getting in touch Juan Pérez!",
+    );
+
+    cy.wait("@contactSuccess").then((interception) => {
+      expect(interception.request.body.description).to.equal(mensajeEspecial);
+      expect(interception.response.statusCode).to.equal(200);
+    });
+  });
+});
