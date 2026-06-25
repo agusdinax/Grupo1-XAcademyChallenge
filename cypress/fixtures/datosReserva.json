@@ -3,37 +3,37 @@
     "valida": {
       "nombre": "Juan",
       "apellido": "Perez",
-      "correo": "juan_perez@prueba.com",
+      "email": "juan_perez@prueba.com",
       "telefono": "35133221231"
     },
     "nombreVacio": {
       "nombre": "",
       "apellido": "Perez",
-      "correo": "juan_perez@prueba.com",
+      "email": "juan_perez@prueba.com",
       "telefono": "35133221231"
     },
     "apellidoVacio": {
       "nombre": "Juan",
       "apellido": "",
-      "correo": "juan_perez@prueba.com",
+      "email": "juan_perez@prueba.com",
       "telefono": "35133221231"
     },
     "correoVacio": {
       "nombre": "Juan",
       "apellido": "Perez",
-      "correo": "",
+      "email": "",
       "telefono": "35133221231"
     },
     "telefonoVacio": {
       "nombre": "Juan",
       "apellido": "Perez",
-      "correo": "juan_perez@prueba.com",
+      "email": "juan_perez@prueba.com",
       "telefono": ""
     },
     "correoInvalido": {
       "nombre": "Juan",
       "apellido": "Perez",
-      "correo": "juan_perezprueba.com",
+      "email": "juan_perezprueba.com",
       "telefono": "35133221231"
     }
   },

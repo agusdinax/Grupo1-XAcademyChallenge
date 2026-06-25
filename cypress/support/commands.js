@@ -79,7 +79,6 @@ Cypress.Commands.add('seleccionarHabitacionDisponible', () => {
 // apellido, email, telefono (ver archivo fixtures/huespedes.json)
 
 Cypress.Commands.add('completarFormularioReserva', (datos) => {
- 
   // Selecciona cada input por su atributo "name"
  if (datos.nombre !== '') {
     cy.get('input[name="firstname"]').clear().type(datos.nombre)
@@ -89,8 +88,10 @@ Cypress.Commands.add('completarFormularioReserva', (datos) => {
     cy.get('input[name="lastname"]').clear().type(datos.apellido)
   }
 
-  if (datos.correo !== '') {
-    cy.get('input[name="email"]').clear().type(datos.correo)
+    if (datos.email || datos.correo) {
+    cy.get('input[name="email"]')
+      .clear()
+      .type(datos.email ?? datos.correo)
   }
 
   if (datos.telefono !== '') {
