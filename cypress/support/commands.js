@@ -133,16 +133,19 @@ Cypress.Commands.add(
   },
 );
 
+//Command para enviar el formulario de reserva
 Cypress.Commands.add('enviarFormularioReserva', () => {
   cy.contains('Reserve Now').should('be.visible').and('be.enabled').click()
 })
 
+//command para validar los mensajes de error
 Cypress.Commands.add('deberiaMostrarError', (mensaje) => {
   cy.get('.alert-danger, .error, [class*="error"], [class*="alert"]')
     .should('be.visible')
     .and('contain.text', mensaje)
 })
 
+//command para validar que no se realizo la reserva al no enviar los datos correctos
 Cypress.Commands.add('noDeberiaConfirmarReserva', () => {
   cy.contains('Reservation Successful').should('not.exist')
 })
