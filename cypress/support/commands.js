@@ -1,25 +1,99 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+// Creamos un comando que recibe dos strings con formato día, mes y año
+// y los escribe en los campos check-in y check-out.
+Cypress.Commands.add('seleccionarFechas', (checkIn, checkOut) => {
+ 
+  // Busca el label que se nombra "Check In", sube al elemento padre (.parent())
+  // y dentro busca el primer input para limpiarlo y escribir la fecha que posteriormente se genera en el otro command
+  cy.contains('label', 'Check In').parent().find('input').first().clear().type(checkIn)
+ 
+  // Lo mismo ocurre para el label de "Check Out"
+  cy.contains('label', 'Check Out').parent().find('input').clear().type(checkOut)
+ 
+}) 
+ 
+// Creamos un command que genera fechas de check-in y check-out de forma dinámica para evitar usar
+// fechas hardcodeadas que pueden quedar en el pasado o ya estar reservadas, recibe dos parámetros:
+// cantidadNoches: cuántas noches dura la estadia (por ej: 1, 2, 28)
+// diasBase: desde cuántos días en el futuro empieza el rango de check-in (por defecto 30 días desde hoy)
+
+Cypress.Commands.add('seleccionarFechasAleatorias', (cantidadNoches, diasBase = 30) => {
+ 
+  const hoy = new Date() // crea un objeto de tipo Date con la fecha y hora actual del sistema en el momento en que se ejecuta el test.
+ 
+  // Genera un número aleatorio entre diasBase y diasBase+30
+  // esto evita que dos tests con el mismo diasBase elijan las mismas fechas
+  const diasAleatorios =
+    Math.floor(Math.random() * 30) + diasBase
+ 
+  // Se crea una copia de la fecha actual y se la mueve hacia adelante una cantidad de días 
+  // igual a diasAleatorios, obteniendo así la fecha del check-in.
+  const checkIn = new Date(hoy)
+  checkIn.setDate(hoy.getDate() + diasAleatorios)
+ 
+  // Se crea una copia de la fecha de check-in y se le suman cantidadNoches días 
+  // para obtener la fecha del check-out.
+  const checkOut = new Date(checkIn)
+  checkOut.setDate(checkIn.getDate() + cantidadNoches)
+ 
+  // Función La función toma una fecha, extrae día, mes y año, y asegura que día y mes 
+  // tengan siempre 2 dígitos para poder formatear la fecha correctamente.
+  const formatearFecha = (fecha) => {
+    const dia = String(fecha.getDate()).padStart(2, '0')        
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0')  
+    const anio = fecha.getFullYear()
+ 
+    return `${dia}/${mes}/${anio}` //Construye y devuelve una fecha en formato día-mes-año usando los valores de día, mes y año obtenidos.
+  }
+  //Convierte las fechas checkIn y checkOut en cadenas con formato dd/mm/yyyy 
+  //y las guarda en fechaIngreso y fechaSalida para poder utilizarlas en el formulario o en el test.
+  const fechaIngreso = formatearFecha(checkIn)
+  const fechaSalida = formatearFecha(checkOut)
+ 
+  // cy.log() muestra el valor en el panel de Cypress (sirve para depurar que valores está utilizando el test)
+  cy.log(`CheckIn: ${fechaIngreso}`)
+  cy.log(`CheckOut: ${fechaSalida}`)
+ 
+  // Llama al comando anterior para escribir las fechas en el formulario
+  cy.seleccionarFechas(fechaIngreso, fechaSalida)
+ 
+})
+ 
+ 
+// Creamos un Command que hace clic en el botón de la primera habitación disponible 
+// que aparezca en los resultados de búsqueda.
+Cypress.Commands.add('seleccionarHabitacionDisponible', () => {
+ 
+  // Selecciona todos los botones de reserva dentro de las tarjetas de habitación
+  // verifica que hay al menos una habitación disponible toma solo la primera 
+  // y hace clic en ella
+  cy.get('.room-card a.btn.btn-primary')
+    .should('have.length.greaterThan', 0)
+    .first()
+    .click()
+ 
+})
+ 
+ 
+// Creamos un command que recibe un objeto con los datos del huésped y los escribe en cada campo
+// del formulario de reserva, recibe el parámetro "datos": que es un objeto con propiedades nombre, 
+// apellido, email, telefono (ver archivo fixtures/huespedes.json)
+
+Cypress.Commands.add('completarFormularioReserva', (datos) => {
+ 
+  // Selecciona cada input por su atributo "name"
+  cy.get('input[name="firstname"]').should('be.visible').type(datos.nombre)   // nombre
+  cy.get('input[name="lastname"]').type(datos.apellido)                       // apellido
+  cy.get('input[name="email"]').type(datos.email)                             // email
+  cy.get('input[name="phone"]').type(datos.telefono)                          // teléfono
+ 
+})
+ 
+ 
+// Creamos un command que verifica a traves del h2 que la reserva fue procesada 
+// y que la confirmación se muestra al usuario. 
+
+Cypress.Commands.add('validarReservaExitosa', () => {
+  cy.contains('h2', 'Booking Confirmed')
+    .should('be.visible')
+}) 
+

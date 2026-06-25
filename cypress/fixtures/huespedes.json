@@ -1,0 +1,14 @@
+{
+  "huesped_1": {
+    "nombre": "Juan",
+    "apellido": "Perez",
+    "email": "juan.perez@prueba.com",
+    "telefono": "35133212311"
+  },
+  "huesped_2": {
+    "nombre": "Maria",
+    "apellido": "Garcia",
+    "email": "maria.garcia@prueba.com",
+    "telefono": "35133212356"
+  }
+}
