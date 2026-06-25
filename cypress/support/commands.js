@@ -157,14 +157,16 @@ Cypress.Commands.add('eligeHabitacion', () => {
 })
 
 Cypress.Commands.add('verFormularioReserva', () => {
-  cy.get('button').contains('Reserve now').click()
+  cy.contains('Reserve Now').should('be.visible').and('be.enabled').click()
   cy.get('form').should('be.visible')
 })
 
 Cypress.Commands.add('navegarEntreHabitaciones', () => {
   cy.get('a[href="/#rooms"]').scrollIntoView()
-  cy.get('.room-container').eq(0).contains('View Details').click()
-  cy.get('.room-description').should('be.visible')
+  cy.get(':nth-child(1) > .card > .card-body > .btn')
+    .should('be.visible')
+    .click()
+  cy.get(':nth-child(3) > .fs-4').should('be.visible')
 })
 
 //COMANDS PARA LAS PRUEBAS DE LOGIN 
