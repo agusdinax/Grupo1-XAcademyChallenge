@@ -149,3 +149,28 @@ Cypress.Commands.add('deberiaMostrarError', (mensaje) => {
 Cypress.Commands.add('noDeberiaConfirmarReserva', () => {
   cy.contains('Reservation Successful').should('not.exist')
 })
+
+//COMMANDS PARA HABITACION
+Cypress.Commands.add('eligeHabitacion', () => {
+  cy.contains('.nav-link', 'Rooms').click()
+  cy.get('.room-card').first().contains('Book now').click()
+})
+
+Cypress.Commands.add('verFormularioReserva', () => {
+  cy.get('button').contains('Reserve now').click()
+  cy.get('form').should('be.visible')
+})
+
+Cypress.Commands.add('navegarEntreHabitaciones', () => {
+  cy.get('a[href="/#rooms"]').scrollIntoView()
+  cy.get('.room-container').eq(0).contains('View Details').click()
+  cy.get('.room-description').should('be.visible')
+})
+
+//COMANDS PARA LAS PRUEBAS DE LOGIN 
+Cypress.Commands.add('loginAdmin',(user, pass)=>{
+     cy.visit('https://automationintesting.online/admin/')
+     cy.get('[id="username"]').type(user)
+     cy.get('[id="password"]').type(pass)
+     cy.get('[id="doLogin"]').click()
+})
