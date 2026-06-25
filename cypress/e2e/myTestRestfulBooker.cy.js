@@ -1,6 +1,34 @@
+describe('3.1- Navegacion Habitaciones - Shady Meadows B&B', () => {
+        //ingrersa al sitio web
+    beforeEach(()=>{
+        cy.visit('https://automationintesting.online//')
+    })
+
+    it('Ver formulario de reserva', () => {
+        // Selecciona la habitacion
+        // Busca el botón "Book now" dentro de la tarjeta de habitación
+        cy.eligeHabitacion()
+        //Selecciona el boton "Reserve now"
+        // Verifica que el formulario de reserva esté visible
+        cy.verFormularioReserva()
+    
+    })
+
+    it('Navegar entre habitaciones', () => {
+        // Selecciona la habitacion
+        // Busca el botón "Book now" dentro de la tarjeta de habitación
+        cy.eligeHabitacion()
+        //Baja hasta la sección de habitaciones
+        // Selecciona una habitacion diferente 
+        //Visualizar la informacion de la habitacion seleccionada
+        cy.navegarEntreHabitaciones()
+
+    })
+})
+
 // describe(), aquí se agrupan los tests que se relacionan entre sí, lo que se encuentra es solo un string que 
 // aparece en Cypress para identificar el bloque.
-describe('Reservas - Usuario Invitado', () => { 
+describe('3.1 - Reservas - Usuario Invitado', () => { 
  
   // beforeEach() se ejecuta antes de cada it(). De esta manera cada test arranca con el mismo 
   // estado inicial sin importar el orden en que se ejecuten.
@@ -237,21 +265,21 @@ describe('3.2 Validaciones del Formulario de Reserva', () => {
     cy.noDeberiaConfirmarReserva()
   })
 
+    it('CP-015b | Email mal formado - debe mostrar error must be a well-formed email address', function ()  {
+    cy.completarFormularioReserva(
+        this.datosReserva.correoInvalido
+      )
+    cy.enviarFormularioReserva()
+    cy.deberiaMostrarError(this.mensajesError.correoInvalido)
+    cy.noDeberiaConfirmarReserva()
+  })
+
   it('CP-016 | Teléfono vacío - debe mostrar error must not be empty', function () {
     cy.completarFormularioReserva(
         this.datosReserva.telefonoVacio
       )
     cy.enviarFormularioReserva()
     cy.deberiaMostrarError(this.mensajesError.telefonoVacio)
-    cy.noDeberiaConfirmarReserva()
-  })
-
-  it('CP-015b | Email mal formado - debe mostrar error must be a well-formed email address', function ()  {
-    cy.completarFormularioReserva(
-        this.datosReserva.correoInvalido
-      )
-    cy.enviarFormularioReserva()
-    cy.deberiaMostrarError(this.mensajesError.correoInvalido)
     cy.noDeberiaConfirmarReserva()
   })
 
@@ -291,7 +319,7 @@ describe('3.2 Validaciones del Formulario de Reserva', () => {
   })
 })
 
-describe("Shady Meadows - Formulario de Contacto", () => {
+describe("3.3 Shady Meadows - Formulario de Contacto", () => {
   let contacto; //Variable que contendrá los datos de contacto del fixture
   beforeEach(() => {
     cy.visit("https://automationintesting.online");
@@ -428,30 +456,3 @@ describe("Shady Meadows - Formulario de Contacto", () => {
   });
 });
 
-describe('Habitaciones - Shady Meadows B&B', () => {
-        //ingrersa al sitio web
-    beforeEach(()=>{
-        cy.visit('https://automationintesting.online//')
-    })
-
-    it('Ver formulario de reserva', () => {
-        // Selecciona la habitacion
-        // Busca el botón "Book now" dentro de la tarjeta de habitación
-        cy.eligeHabitacion()
-        //Selecciona el boton "Reserve now"
-        // Verifica que el formulario de reserva esté visible
-        cy.verFormularioReserva()
-    
-    })
-
-    it('Navegar entre habitaciones', () => {
-        // Selecciona la habitacion
-        // Busca el botón "Book now" dentro de la tarjeta de habitación
-        cy.eligeHabitacion()
-        //Baja hasta la sección de habitaciones
-        // Selecciona una habitacion diferente 
-        //Visualizar la informacion de la habitacion seleccionada
-        cy.navegarEntreHabitaciones()
-
-    })
-})
