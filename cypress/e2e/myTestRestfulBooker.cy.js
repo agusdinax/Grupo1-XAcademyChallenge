@@ -196,73 +196,66 @@ describe('3.2 Validaciones del Formulario de Reserva', () => {
     telefono: '35133221231',
   }
 
-  it('CP-013 | Nombre vacío - debe mostrar error Firstname should not be blank', () => {
-    cy.abrirFormularioReserva()
-    cy.completarFormularioReserva({
-      nombre: '',
-      apellido: datosValidos.apellido,
-      correo: datosValidos.correo,
-      telefono: datosValidos.telefono,
+   beforeEach(function () {
+    cy.viewport(1280, 720)
+    cy.visit('https://automationintesting.online/')
+    cy.seleccionarFechasAleatorias(28, 150)
+    cy.fixture('datosReserva').then((datos) => {
+      this.datosReserva = datos.datosReserva
+      this.mensajesError = datos.mensajesError
     })
+    cy.contains('Check Availability').should('be.visible').click()
+    cy.seleccionarHabitacionDisponible()
+    cy.url().should('include', '/reservation/')
+    cy.contains('Reserve Now').should('be.visible').click()
+  })
+
+  it.only('CP-013 | Nombre vacío - debe mostrar error Firstname should not be blank', function () {
+      cy.completarFormularioReserva(
+        this.datosReserva.nombreVacio
+      )
+      cy.enviarFormularioReserva()
+      cy.deberiaMostrarError(this.mensajesError.nombreVacio)
+      cy.noDeberiaConfirmarReserva()
+    })
+
+  it.only('CP-014 | Apellido vacío - debe mostrar error Lastname should not be blank', function ()  {
+     cy.completarFormularioReserva(
+        this.datosReserva.apellidoVacio
+      )
     cy.enviarFormularioReserva()
-    cy.deberiaMostrarError('Firstname should not be blank')
+    cy.deberiaMostrarError(this.mensajesError.apellidoVacio)
     cy.noDeberiaConfirmarReserva()
   })
 
-  it('CP-014 | Apellido vacío - debe mostrar error Lastname should not be blank', () => {
-    cy.abrirFormularioReserva()
-    cy.completarFormularioReserva({
-      nombre: datosValidos.nombre,
-      apellido: '',
-      correo: datosValidos.correo,
-      telefono: datosValidos.telefono,
-    })
+  it.only('CP-015 | Email vacío - debe mostrar error must not be empty', () => {
+      cy.completarFormularioReserva(
+        this.datosReserva.correoVacio
+      )
     cy.enviarFormularioReserva()
-    cy.deberiaMostrarError('Lastname should not be blank')
+    cy.deberiaMostrarError(this.mensajesError.correoVacio)
     cy.noDeberiaConfirmarReserva()
   })
 
-  it('CP-015 | Email vacío - debe mostrar error must not be empty', () => {
-    cy.abrirFormularioReserva()
-    cy.completarFormularioReserva({
-      nombre: datosValidos.nombre,
-      apellido: datosValidos.apellido,
-      correo: '',
-      telefono: datosValidos.telefono,
-    })
+  it.only('CP-016 | Teléfono vacío - debe mostrar error must not be empty', () => {
+    cy.completarFormularioReserva(
+        this.datosReserva.telefonoVacio
+      )
     cy.enviarFormularioReserva()
-    cy.deberiaMostrarError('must not be empty')
+    cy.deberiaMostrarError(this.mensajesError.telefonoVacio)
     cy.noDeberiaConfirmarReserva()
   })
 
-  it('CP-016 | Teléfono vacío - debe mostrar error must not be empty', () => {
-    cy.abrirFormularioReserva()
-    cy.completarFormularioReserva({
-      nombre: datosValidos.nombre,
-      apellido: datosValidos.apellido,
-      correo: datosValidos.correo,
-      telefono: '',
-    })
+  it.only('CP-015b | Email mal formado - debe mostrar error must be a well-formed email address', () => {
+    cy.completarFormularioReserva(
+        this.datosReserva.correoInvalido
+      )
     cy.enviarFormularioReserva()
-    cy.deberiaMostrarError('must not be empty')
+    cy.deberiaMostrarError(this.mensajesError.correoInvalido)
     cy.noDeberiaConfirmarReserva()
   })
 
-  it('CP-015b | Email mal formado - debe mostrar error must be a well-formed email address', () => {
-    cy.abrirFormularioReserva()
-    cy.completarFormularioReserva({
-      nombre: datosValidos.nombre,
-      apellido: datosValidos.apellido,
-      correo: 'juan_perezprueba.com',
-      telefono: datosValidos.telefono,
-    })
-    cy.enviarFormularioReserva()
-    cy.deberiaMostrarError('must be a well-formed email address')
-    cy.noDeberiaConfirmarReserva()
-  })
-
-  it('CP-018 | Nombre con 1 carácter - debe mostrar error size must be between 3 and 18', () => {
-    cy.abrirFormularioReserva()
+  it.only('CP-018 | Nombre con 1 carácter - debe mostrar error size must be between 3 and 18', () => {
     cy.completarFormularioReserva({
       nombre: 'J',
       apellido: datosValidos.apellido,
@@ -274,10 +267,8 @@ describe('3.2 Validaciones del Formulario de Reserva', () => {
     cy.noDeberiaConfirmarReserva()
   })
 
-  it('CP-019 | Email con longitud excesiva - debe mostrar error must be a well-formed email address', () => {
+  it.only('CP-019 | Email con longitud excesiva - debe mostrar error must be a well-formed email address', () => {
     const correoLargo = `juan_perez${'s'.repeat(60)}@prueba.com`
-
-    cy.abrirFormularioReserva()
     cy.completarFormularioReserva({
       nombre: datosValidos.nombre,
       apellido: datosValidos.apellido,
@@ -289,27 +280,21 @@ describe('3.2 Validaciones del Formulario de Reserva', () => {
     cy.noDeberiaConfirmarReserva()
   })
 
-  it('CP-013-016 | Formulario vacío - deben aparecer todos los mensajes de error', () => {
-    cy.abrirFormularioReserva()
+  it.only('CP-020 | Formulario vacío - deben aparecer todos los mensajes de error', () => {
     cy.enviarFormularioReserva()
-
     cy.get('.alert-danger, .error, [class*="error"], [class*="alert"]')
       .should('be.visible')
-
     cy.get('body')
       .should('contain.text', 'should not be blank')
       .and('contain.text', 'must not be empty')
-
     cy.noDeberiaConfirmarReserva()
   })
 })
 
 describe("Shady Meadows - Formulario de Contacto", () => {
   let contacto; //Variable que contendrá los datos de contacto del fixture
-
   beforeEach(() => {
     cy.visit("https://automationintesting.online");
-
     cy.fixture("contacto").then((datos) => {
       contacto = datos;
     });

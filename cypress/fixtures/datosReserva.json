@@ -1,0 +1,48 @@
+{
+  "datosReserva": {
+    "valida": {
+      "nombre": "Juan",
+      "apellido": "Perez",
+      "correo": "juan_perez@prueba.com",
+      "telefono": "35133221231"
+    },
+    "nombreVacio": {
+      "nombre": "",
+      "apellido": "Perez",
+      "correo": "juan_perez@prueba.com",
+      "telefono": "35133221231"
+    },
+    "apellidoVacio": {
+      "nombre": "Juan",
+      "apellido": "",
+      "correo": "juan_perez@prueba.com",
+      "telefono": "35133221231"
+    },
+    "correoVacio": {
+      "nombre": "Juan",
+      "apellido": "Perez",
+      "correo": "",
+      "telefono": "35133221231"
+    },
+    "telefonoVacio": {
+      "nombre": "Juan",
+      "apellido": "Perez",
+      "correo": "juan_perez@prueba.com",
+      "telefono": ""
+    },
+    "correoInvalido": {
+      "nombre": "Juan",
+      "apellido": "Perez",
+      "correo": "juan_perezprueba.com",
+      "telefono": "35133221231"
+    }
+  },
+  "mensajesError": {
+    "nombreVacio": "Firstname should not be blank",
+    "apellidoVacio": "Lastname should not be blank",
+    "correoVacio": "must not be empty",
+    "telefonoVacio": "must not be empty",
+    "correoInvalido": "must be a well-formed email address",
+    "longitudNombre": "size must be between 3 and 18"
+  }
+}

@@ -81,17 +81,27 @@ Cypress.Commands.add('seleccionarHabitacionDisponible', () => {
 Cypress.Commands.add('completarFormularioReserva', (datos) => {
  
   // Selecciona cada input por su atributo "name"
-  cy.get('input[name="firstname"]').should('be.visible').type(datos.nombre)   // nombre
-  cy.get('input[name="lastname"]').type(datos.apellido)                       // apellido
-  cy.get('input[name="email"]').type(datos.email)                             // email
-  cy.get('input[name="phone"]').type(datos.telefono)                          // teléfono
+ if (datos.nombre !== '') {
+    cy.get('input[name="firstname"]').clear().type(datos.nombre)
+  }
+
+  if (datos.apellido !== '') {
+    cy.get('input[name="lastname"]').clear().type(datos.apellido)
+  }
+
+  if (datos.correo !== '') {
+    cy.get('input[name="email"]').clear().type(datos.correo)
+  }
+
+  if (datos.telefono !== '') {
+    cy.get('input[name="phone"]').clear().type(datos.telefono)
+  }           // teléfono
  
 })
  
  
 // Creamos un command que verifica a traves del h2 que la reserva fue procesada 
 // y que la confirmación se muestra al usuario. 
-
 Cypress.Commands.add('validarReservaExitosa', () => {
   cy.contains('h2', 'Booking Confirmed')
     .should('be.visible')
@@ -121,3 +131,17 @@ Cypress.Commands.add(
     }
   },
 );
+
+Cypress.Commands.add('enviarFormularioReserva', () => {
+  cy.contains('Reserve Now').should('be.visible').and('be.enabled').click()
+})
+
+Cypress.Commands.add('deberiaMostrarError', (mensaje) => {
+  cy.get('.alert-danger, .error, [class*="error"], [class*="alert"]')
+    .should('be.visible')
+    .and('contain.text', mensaje)
+})
+
+Cypress.Commands.add('noDeberiaConfirmarReserva', () => {
+  cy.contains('Reservation Successful').should('not.exist')
+})
